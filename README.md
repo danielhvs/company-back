@@ -7,3 +7,9 @@ Clojure Backend Application
   - Uses [dali](https://github.com/stathissideris/dali) lib to generate svg images.
   - Uses [docker](https://www.docker.com/) to dockerize the uberjar so it is easy to deploy anywhere.
   - Usage: `make docker-build-and-run` or `docker compose up`
+
+Show Case
+===========
+
+https://github.com/danielhvs/company-back/assets/9825663/26c77179-b2a3-4bc9-bab6-36a0ff29f910
+
