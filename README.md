@@ -10,6 +10,5 @@ Clojure Backend Application
 
 Show Case
 ===========
-
-https://github.com/danielhvs/company-back/assets/9825663/26c77179-b2a3-4bc9-bab6-36a0ff29f910
+https://github.com/danielhvs/company-back/assets/9825663/ca83e2a0-a3ca-41a2-a810-811da6bfa12e
 
