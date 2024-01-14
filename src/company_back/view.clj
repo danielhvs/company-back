@@ -24,12 +24,10 @@
     :as _entity}]
   (get {"Circle"
         [:circle {:cx "50", :cy "50", :r (str quantity) , :stroke "green", :stroke-width "4", :fill "yellow"}]
-        "Losangle"
-        [:polygon {:points "50,5 100,50 50,95 0,50", :style (str "fill:blue;stroke:black;stroke-width:" (min 5 quantity))}]
         "Square"
         [:rect {:style "fill:blue;stroke-width:3;stroke:black"} [50 50] [50 50]]
         "Triangle"
-        [:polygon {:points "200,10 250,190 160,210", :style "fill:lime;stroke:purple;stroke-width:1"}]}
+        [:polygon {:points "100,10 120,90  60,20", :style "fill:lime;stroke:purple;stroke-width:1"}]}
        name))
 
 (defn svg*
