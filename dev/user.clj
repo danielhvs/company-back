@@ -1,8 +1,7 @@
 (ns dev.user
   (:require
    [clojure.tools.nrepl.server :as nrepl]
-   [company-back.core :as company-back]
-   [company-back.db :as db]))
+   [company-back.core :as company-back]))
 
 (defonce nrepl-server (nrepl/start-server))
 (spit "./.nrepl-port" (:port nrepl-server))
