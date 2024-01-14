@@ -1,4 +1,5 @@
 repl:
+	clj -X:deps prep
 	clj -A:dev
 main:
 	clj -M:runner
