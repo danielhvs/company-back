@@ -2,6 +2,7 @@
   (:require
    [clojure.data.json :as json]
    [clojure.pprint :refer [pprint]]
+   [clojure.spec.alpha :as spec]
    [company-back.db :as db]
    [company-back.view :as view]
    [compojure.core :refer [defroutes GET POST]]
@@ -16,10 +17,11 @@
    [ring.util.response :as r])
   (:gen-class))
 
+(def ^:private BAD_REQUEST 400)
 (defonce server (atom nil))
 (defonce ds (atom nil))
 
-(defn- calculate* []
+(defn- search* []
   (let [db-products (db/fetch-all! @ds :product)
         amount (min 7 (+ 5 (rand-int (count db-products))))
         data (take amount (shuffle db-products))
@@ -32,10 +34,14 @@
         response (:products (update state :products conj (select-keys state [:price :name])))]
     response))
 
-(defn- calculate
-  []
-  (-> (calculate*)
-      json/write-str))
+(spec/def ::shape #{"triangle" "circle" " square "})
+(defn- search
+  [shape]
+  (let [response
+        (if-not (spec/valid? ::shape shape)
+          (r/bad-request (json/write-str (spec/explain-data ::shape shape)))
+          (r/response (json/write-str (search*))))]
+    (r/header response "Content-Type" "application/pdf")))
 
 (defn parse-payload
   [request]
@@ -59,7 +65,7 @@
 
 (defroutes app-routes
   (POST "/make-pdf" request [request] (make-pdf request))
-  (GET "/calculate" [] (calculate))
+  (GET "/search/:shape" [shape] (search shape))
   (route/not-found "Not Found"))
 
 (defn wrap-debug
