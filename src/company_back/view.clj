@@ -32,26 +32,30 @@
         [:polygon {:points "200,10 250,190 160,210", :style "fill:lime;stroke:purple;stroke-width:1"}]}
        name))
 
-(defn svg
-  [entities]
+(defn svg*
+  [entity]
   (io/render-svg-string
-    [:dali/page
-     (type->svg (->> entities
-                     (remove #(= "total" (:name %)))
-                     shuffle
-                     first))]))
+   [:dali/page
+    (type->svg entity)]))
+
+(defn svgs
+  [data]
+  (let [data (remove #(= "total" (:name %)) data)]
+    (for [ent data]
+      [[:svg {:translate (* 10 (:quantity ent))
+              :rotate (:price ent)} (svg* ent)]])))
 
 (defn pdf*
   [file-name client-name data]
-  [[:spacer 5]
-   [:spacer 13]
-   (title "COMPANY SYSTEM\nPORTFOLIO")
-   [:spacer 3]
-   (title-text "Tech Proposal")
-   (title-text file-name)
-   [:svg {} (svg data)]
-   [:spacer 11]
-   [:heading {:style {:size 14 :color green :align :right}} "Client: " [:chunk {:color black} client-name]]])
+  (into [[:spacer 5]
+         [:spacer 13]
+         (title "COMPANY SYSTEM\nPORTFOLIO")
+         [:spacer 3]
+         (title-text "Tech Proposal")
+         (title-text file-name)
+         [:spacer 11]
+         [:heading {:style {:size 14 :color green :align :right}} "Client: " [:chunk {:color black} client-name]]]
+        (svgs data)))
 
 (def stylesheet
   {:company {:color gray}
@@ -88,3 +92,4 @@
                   (pdf* file-name client data)]))
        output-stream)
       (catch Exception e (println e)))))
+
