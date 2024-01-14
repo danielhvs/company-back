@@ -1,14 +1,24 @@
 (ns dev.user
   (:require
    [clojure.tools.nrepl.server :as nrepl]
-   [company-back.core :as company-back]))
+   [company-back.core :as company-back]
+   [company-back.db :as db]))
 
 (defonce nrepl-server (nrepl/start-server))
 (spit "./.nrepl-port" (:port nrepl-server))
 
+(def conn-spec
+  {:host "localhost"
+   :port 5432
+   :username "postgres"
+   :user "postgres"
+   :password "postgres"
+   :dbtype "postgres"
+   :dbname "postgres"})
+
 (defn start
   []
-  (company-back/start-server))
+  (company-back/start-system conn-spec))
 
 (defn stop
   []
@@ -19,10 +29,8 @@
   (stop)
   (start))
 
-(comment 
+(comment
 
   (stop)
-  (restart)
-
-)
+  (restart))
 

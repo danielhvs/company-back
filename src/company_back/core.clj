@@ -2,12 +2,12 @@
   (:require
    [clojure.data.json :as json]
    [clojure.pprint :refer [pprint]]
+   [company-back.db :as db]
+   [company-back.view :as view]
    [compojure.core :refer [defroutes GET POST]]
    [compojure.handler :refer [site]]
    [compojure.route :as route]
    [environ.core :as env]
-   [company-back.db :as db]
-   [company-back.view :as view]
    [ring.adapter.jetty :as jetty]
    [ring.middleware.cors :refer [wrap-cors]]
    [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
@@ -16,9 +16,13 @@
    [ring.util.response :as r])
   (:gen-class))
 
+(defonce server (atom nil))
+(defonce ds (atom nil))
+
 (defn- calculate* []
-  (let [amount (min 7 (+ 5 (rand-int (count db/products))))
-        data (take amount (shuffle db/products))
+  (let [db-products (db/fetch-all! @ds :product)
+        amount (min 7 (+ 5 (rand-int (count db-products))))
+        data (take amount (shuffle db-products))
         state (reduce (fn [acc p]
                         (-> acc
                             (update :price + (:price p))
@@ -78,17 +82,18 @@
       wrap-multipart-params
       wrap-debug))
 
-(defonce server (atom nil))
-
 (defn stop-server
   []
-  (when @server
+  (when @server ;; FIXME close connection
     (.stop @server)))
 
-(defn start-server
-  []
-  (let [port (Integer. (or (env/env :port) 3000))]
-    (reset! server (jetty/run-jetty (site #'app) {:port port :join? false}))))
+(defn start-system
+  [conn-spec]
+  (when-let [data-source (db/connect! conn-spec)]
+    (let [port (Integer. (or (env/env :port) 3000))]
+      (reset! ds data-source)
+      (db/migrate! data-source)
+      (reset! server (jetty/run-jetty (site #'app) {:port port :join? false})))))
 
-(defn -main [& _args]
-  (start-server))
+(defn -main [& args]
+  (start-system (first args)))
