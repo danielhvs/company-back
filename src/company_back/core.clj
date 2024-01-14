@@ -17,7 +17,6 @@
    [ring.util.response :as r])
   (:gen-class))
 
-(def ^:private BAD_REQUEST 400)
 (defonce server (atom nil))
 (defonce ds (atom nil))
 
@@ -36,8 +35,9 @@
 
 (spec/def ::shape #{"triangle" "circle" " square "})
 (defn- search
-  [shape]
-  (let [response
+  [request]
+  (let [shape (get (:query-params request) "shape")
+        response
         (if-not (spec/valid? ::shape shape)
           (r/bad-request (json/write-str (spec/explain-data ::shape shape)))
           (r/response (json/write-str (search*))))]
@@ -65,7 +65,7 @@
 
 (defroutes app-routes
   (POST "/make-pdf" request [request] (make-pdf request))
-  (GET "/search/:shape" [shape] (search shape))
+  (GET "/search/" request [request] (search request))
   (route/not-found "Not Found"))
 
 (defn wrap-debug
