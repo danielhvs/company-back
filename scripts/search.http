@@ -3,3 +3,5 @@ GET localhost:3000/search/?shape=all
 GET localhost:3000/search/?shape=triangle
 GET localhost:3000/search/?shape=square
 GET localhost:3000/search/?shape=invalid
+
+DELETE localhost:3000/product/42909478ca7749e580e3c615

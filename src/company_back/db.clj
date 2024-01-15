@@ -1,20 +1,30 @@
 (ns company-back.db
   (:require
    [clojure.java.io :as io]
-   [next.jdbc.result-set :as jdbc.rs]
+   [clojure.string :as str]
    [honey.sql :as honey]
    [honey.sql.helpers :as hh]
-   [next.jdbc :as jdbc]))
+   [next.jdbc :as jdbc]
+   [next.jdbc.result-set :as jdbc.rs]))
 
 (defn format-sql [honey]
   (honey/format honey {:inline false}))
 
-(defn fetch-all! [ds table where]
-  (let [query (-> (hh/select :name :quantity :price)
+(def ^:private jdbc-opts
+  {:builder-fn jdbc.rs/as-unqualified-maps})
+
+(defn fetch-all!
+  [ds table where]
+  (let [query (-> (hh/select :_id :name :quantity :price)
                   (hh/from (keyword table))
                   (hh/where where))]
-    (jdbc/execute! ds (format-sql query)
-                   {:builder-fn jdbc.rs/as-unqualified-maps})))
+    (jdbc/execute! ds (format-sql query) jdbc-opts)))
+
+(defn delete!
+  [ds table where]
+  (let [query (-> (hh/delete-from (keyword table))
+                  (hh/where where))]
+    (jdbc/execute! ds (format-sql query) jdbc-opts)))
 
 (defn connect!
   [db-config]
@@ -42,9 +52,12 @@
 (defn setup-initial-data!
   [ds]
   (println "setup-initial-data! " seed)
-  (jdbc/execute! ds
-                 (format-sql (-> (hh/insert-into :product)
-                                 (hh/values seed)))))
+  (let [assoc-uid (fn [p] (assoc p :_id (->> (str/replace (str (random-uuid)) #"-" "")
+                                             (take 24)
+                                             (apply str))))]
+    (jdbc/execute! ds
+                   (format-sql (-> (hh/insert-into :product)
+                                   (hh/values (map assoc-uid seed)))))))
 
 (defn migrate! [ds]
   (when ds
@@ -52,3 +65,5 @@
       (println migration)
       (jdbc/execute! ds [migration]))
     (setup-initial-data! ds)))
+
+

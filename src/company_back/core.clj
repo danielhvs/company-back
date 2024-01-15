@@ -5,7 +5,7 @@
    [clojure.spec.alpha :as spec]
    [company-back.db :as db]
    [company-back.view :as view]
-   [compojure.core :refer [defroutes GET POST]]
+   [compojure.core :refer [defroutes DELETE GET POST]]
    [compojure.handler :refer [site]]
    [compojure.route :as route]
    [environ.core :as env]
@@ -20,18 +20,17 @@
 (defonce server (atom nil))
 (defonce ds (atom nil))
 
+(defn- delete
+  [id]
+  (db/delete! @ds :product [:= :_id id])
+  (r/response (json/write-str {:_id id})))
+
 (defn- search!
   [shape]
-  (let [db-products (db/fetch-all! @ds :product
-                                   (if (= shape "all") [:= 1 1] [:= :name shape]))
-        state (reduce (fn [acc p]
-                        (-> acc
-                            (update :price + (:price p))
-                            (update :products conj p)))
-                      {:name "total" :price 0 :products []}
-                      db-products)
-        response (:products (update state :products conj (select-keys state [:price :name])))]
-    response))
+  (db/fetch-all! @ds :product
+                 (if (= shape "all") 
+                   [:= 1 1] 
+                   [:= :name shape])))
 
 (spec/def ::shape #{"triangle" "circle" "square" "all"})
 (defn- search
@@ -65,6 +64,7 @@
 
 (defroutes app-routes
   (POST "/make-pdf" request [request] (make-pdf request))
+  (DELETE "/product/:id" [id] (delete id))
   (GET "/search/" request [request] (search request))
   (route/not-found "Not Found"))
 
