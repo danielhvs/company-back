@@ -1,0 +1,5 @@
+GET localhost:3000/search/?shape=circle
+GET localhost:3000/search/?shape=all
+GET localhost:3000/search/?shape=triangle
+GET localhost:3000/search/?shape=square
+GET localhost:3000/search/?shape=invalid
