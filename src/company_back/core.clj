@@ -20,27 +20,27 @@
 (defonce server (atom nil))
 (defonce ds (atom nil))
 
-(defn- search* []
-  (let [db-products (db/fetch-all! @ds :product)
-        amount (min 7 (+ 5 (rand-int (count db-products))))
-        data (take amount (shuffle db-products))
+(defn- search!
+  [shape]
+  (let [db-products (db/fetch-all! @ds :product
+                                   (if (= shape "all") [:= 1 1] [:= :name shape]))
         state (reduce (fn [acc p]
                         (-> acc
                             (update :price + (:price p))
                             (update :products conj p)))
                       {:name "total" :price 0 :products []}
-                      data)
+                      db-products)
         response (:products (update state :products conj (select-keys state [:price :name])))]
     response))
 
-(spec/def ::shape #{"triangle" "circle" " square "})
+(spec/def ::shape #{"triangle" "circle" "square" "all"})
 (defn- search
   [request]
   (let [shape (get (:query-params request) "shape")
         response
         (if-not (spec/valid? ::shape shape)
           (r/bad-request (json/write-str (spec/explain-data ::shape shape)))
-          (r/response (json/write-str (search*))))]
+          (r/response (json/write-str (search! shape))))]
     (r/header response "Content-Type" "application/pdf")))
 
 (defn parse-payload

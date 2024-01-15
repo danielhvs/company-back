@@ -22,11 +22,11 @@
 (defn type->svg
   [{:keys [quantity name]
     :as _entity}]
-  (get {"Circle"
+  (get {"circle"
         [:circle {:cx "50", :cy "50", :r (str quantity) , :stroke "green", :stroke-width "4", :fill "yellow"}]
-        "Square"
+        "square"
         [:rect {:style "fill:blue;stroke-width:3;stroke:black"} [50 50] [50 50]]
-        "Triangle"
+        "triangle"
         [:polygon {:points "100,10 120,90  60,20", :style "fill:lime;stroke:purple;stroke-width:1"}]}
        name))
 
