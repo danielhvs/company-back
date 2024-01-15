@@ -1,7 +1,6 @@
 (ns company-back.core
   (:require
    [clojure.data.json :as json]
-   [clojure.pprint :refer [pprint]]
    [clojure.spec.alpha :as spec]
    [company-back.db :as db]
    [company-back.view :as view]
@@ -20,16 +19,32 @@
 (defonce server (atom nil))
 (defonce ds (atom nil))
 
+(defn parse-payload
+  [request]
+  (let [body (slurp (:body request))]
+    (json/read-str body :key-fn keyword)))
+
 (defn- delete
   [id]
   (db/delete! @ds :product [:= :_id id])
   (r/response (json/write-str {:_id id})))
 
+(defn ->product [m]
+  (select-keys m [:name :price :quantity :_id]))
+
+(defn- update-produtct
+  [request]
+  (let [{:keys [_id] :as product} (-> request parse-payload ->product)]
+    (db/update-one! @ds :product
+                    [:= :_id _id]
+                    product)
+    (r/response (json/write-str {:_id _id}))))
+
 (defn- search!
   [shape]
   (db/fetch-all! @ds :product
-                 (if (= shape "all") 
-                   [:= 1 1] 
+                 (if (= shape "all")
+                   [:= 1 1]
                    [:= :name shape])))
 
 (spec/def ::shape #{"triangle" "circle" "square" "all"})
@@ -41,13 +56,6 @@
           (r/bad-request (json/write-str (spec/explain-data ::shape shape)))
           (r/response (json/write-str (search! shape))))]
     (r/header response "Content-Type" "application/pdf")))
-
-(defn parse-payload
-  [request]
-  (-> request
-      :body
-      slurp
-      (json/read-str :key-fn keyword)))
 
 (defn make-pdf*
   [data]
@@ -64,6 +72,7 @@
 
 (defroutes app-routes
   (POST "/make-pdf" request [request] (make-pdf request))
+  (POST "/product" request [request] (update-produtct request))
   (DELETE "/product/:id" [id] (delete id))
   (GET "/search/" request [request] (search request))
   (route/not-found "Not Found"))

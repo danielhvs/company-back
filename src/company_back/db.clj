@@ -17,8 +17,16 @@
   [ds table where]
   (let [query (-> (hh/select :_id :name :quantity :price)
                   (hh/from (keyword table))
-                  (hh/where where))]
+                  (hh/where where)
+                  (hh/order-by :name))]
     (jdbc/execute! ds (format-sql query) jdbc-opts)))
+
+(defn update-one!
+  [ds table where entity]
+  (let [query (-> (hh/update (keyword table))
+                  (hh/set entity)
+                  (hh/where where))]
+    (jdbc/execute-one! ds (format-sql query) jdbc-opts)))
 
 (defn delete!
   [ds table where]
@@ -65,5 +73,3 @@
       (println migration)
       (jdbc/execute! ds [migration]))
     (setup-initial-data! ds)))
-
-

@@ -5,3 +5,14 @@ GET localhost:3000/search/?shape=square
 GET localhost:3000/search/?shape=invalid
 
 DELETE localhost:3000/product/42909478ca7749e580e3c615
+
+POST localhost:3000/product
+
+Content-type: application/json
+
+{
+  "_id": "acd9b4861cca4d228ee073e0",
+  "name": "square",
+  "quantity": 28,
+  "price": 207
+}
