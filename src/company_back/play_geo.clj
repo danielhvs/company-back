@@ -28,11 +28,11 @@ true
 false
 
 ; At London, how many bits of geohash do we need for 100m features?
-(-> london (spatial/circle 50) geohash/shape->precision)
+(geohash/shape->precision (spatial/circle london 50))
 35
 
 ; Let's get the 35-bit geohash containing London's center:
-(def h (-> london (geohash/geohash 35)))
+(def h (geohash/geohash london 35))
 h
 
 ; How tall/fat is this geohash, through the middle?
