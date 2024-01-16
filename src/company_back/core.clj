@@ -100,7 +100,7 @@
 
 (defn stop-server
   []
-  (when @server ;; FIXME close connection
+  (when @server
     (.stop @server)))
 
 (defn start-system
