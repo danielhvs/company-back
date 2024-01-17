@@ -29,7 +29,7 @@
 (defn insert-one!
   [ds table entity]
   (let [query (-> (hh/insert-into (keyword table))
-                  (hh/values entity))]
+                  (hh/values [entity]))]
     (jdbc/execute-one! ds (format-sql query) jdbc-opts)))
 
 (defn update-one!

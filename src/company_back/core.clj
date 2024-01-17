@@ -3,7 +3,6 @@
    [clojure.data.json :as json]
    [clojure.pprint :refer [pprint]]
    [clojure.spec.alpha :as spec]
-   [clojure.string :as str]
    [company-back.db :as db]
    [company-back.view :as view]
    [compojure.core :refer [defroutes DELETE GET POST PUT]]
@@ -34,13 +33,17 @@
 (defn ->product [m]
   (select-keys m [:name :price :quantity :_id]))
 
+(spec/def ::create-shape #{"triangle" "circle" "square"})
 (defn- create-product
   [request]
-  (let [{:keys [_id] :as product} (-> request parse-payload ->product)]
-    (->> (assoc product :_id (db/new-id))
-         (db/insert-one! @ds :product)
-         json/write-str
-         r/response)))
+  (let [{:keys [name _id] :as product} (-> request parse-payload ->product)]
+    (clojure.pprint/pprint {:debug "create-product shape" :data name})
+    (if-not (spec/valid? ::create-shape name)
+      (r/bad-request (json/write-str (spec/explain-data ::create-shape name)))
+      (->> (assoc product :_id (db/new-id))
+           (db/insert-one! @ds :product)
+           json/write-str
+           r/response))))
 
 (defn- update-product
   [request]
@@ -57,13 +60,13 @@
                    [:= 1 1]
                    [:= :name shape])))
 
-(spec/def ::shape #{"triangle" "circle" "square" "all"})
+(spec/def ::shape-search #{"triangle" "circle" "square" "all"})
 (defn- search
   [request]
   (let [shape (get (:query-params request) "shape")
         response
-        (if-not (spec/valid? ::shape shape)
-          (r/bad-request (json/write-str (spec/explain-data ::shape shape)))
+        (if-not (spec/valid? ::shape-search shape)
+          (r/bad-request (json/write-str (spec/explain-data ::shape-search shape)))
           (r/response (json/write-str (search! shape))))]
     (r/header response "Content-Type" "application/pdf")))
 
