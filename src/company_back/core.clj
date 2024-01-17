@@ -3,9 +3,10 @@
    [clojure.data.json :as json]
    [clojure.pprint :refer [pprint]]
    [clojure.spec.alpha :as spec]
+   [clojure.string :as str]
    [company-back.db :as db]
    [company-back.view :as view]
-   [compojure.core :refer [defroutes DELETE GET POST]]
+   [compojure.core :refer [defroutes DELETE GET POST PUT]]
    [compojure.handler :refer [site]]
    [compojure.route :as route]
    [environ.core :as env]
@@ -32,6 +33,14 @@
 
 (defn ->product [m]
   (select-keys m [:name :price :quantity :_id]))
+
+(defn- create-product
+  [request]
+  (let [{:keys [_id] :as product} (-> request parse-payload ->product)]
+    (->> (assoc product :_id (db/new-id))
+         (db/insert-one! @ds :product)
+         json/write-str
+         r/response)))
 
 (defn- update-product
   [request]
@@ -73,9 +82,10 @@
 
 (defroutes app-routes
   (POST "/make-pdf" request [request] (make-pdf request))
-  (POST "/product" request [request] (update-product request))
+  (PUT "/product" request [request] (update-product request))
+  (POST "/product" request [request] (create-product request))
   (DELETE "/product/:id" [id] (delete id))
-  (GET "/search/" request [request] (search request))
+  (GET "/product" request [request] (search request))
   (route/not-found "Not Found"))
 
 (defn wrap-debug

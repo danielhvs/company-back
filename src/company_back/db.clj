@@ -7,6 +7,11 @@
    [next.jdbc :as jdbc]
    [next.jdbc.result-set :as jdbc.rs]))
 
+(defn new-id []
+  (->> (str/replace (str (random-uuid)) #"-" "")
+       (take 24)
+       (apply str)))
+
 (defn format-sql [honey]
   (honey/format honey {:inline false}))
 
@@ -20,6 +25,12 @@
                   (hh/where where)
                   (hh/order-by :name))]
     (jdbc/execute! ds (format-sql query) jdbc-opts)))
+
+(defn insert-one!
+  [ds table entity]
+  (let [query (-> (hh/insert-into (keyword table))
+                  (hh/values entity))]
+    (jdbc/execute-one! ds (format-sql query) jdbc-opts)))
 
 (defn update-one!
   [ds table where entity]
@@ -60,9 +71,7 @@
 (defn setup-initial-data!
   [ds]
   (println "setup-initial-data! " seed)
-  (let [assoc-uid (fn [p] (assoc p :_id (->> (str/replace (str (random-uuid)) #"-" "")
-                                             (take 24)
-                                             (apply str))))]
+  (let [assoc-uid (fn [p] (assoc p :_id (new-id)))]
     (jdbc/execute! ds
                    (format-sql (-> (hh/insert-into :product)
                                    (hh/values (map assoc-uid seed)))))))
