@@ -33,7 +33,7 @@
 (defn ->product [m]
   (select-keys m [:name :price :quantity :_id]))
 
-(defn- update-produtct
+(defn- update-product
   [request]
   (let [{:keys [_id] :as product} (-> request parse-payload ->product)]
     (db/update-one! @ds :product
@@ -73,7 +73,7 @@
 
 (defroutes app-routes
   (POST "/make-pdf" request [request] (make-pdf request))
-  (POST "/product" request [request] (update-produtct request))
+  (POST "/product" request [request] (update-product request))
   (DELETE "/product/:id" [id] (delete id))
   (GET "/search/" request [request] (search request))
   (route/not-found "Not Found"))
