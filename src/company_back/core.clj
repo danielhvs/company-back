@@ -37,7 +37,6 @@
 (defn- create-product
   [request]
   (let [{:keys [name _id] :as product} (-> request parse-payload ->product)]
-    (clojure.pprint/pprint {:debug "create-product shape" :data name})
     (if-not (spec/valid? ::create-shape name)
       (r/bad-request (json/write-str (spec/explain-data ::create-shape name)))
       (->> (assoc product :_id (db/new-id))
