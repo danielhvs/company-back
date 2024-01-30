@@ -12,7 +12,7 @@ Observe
 ===========
   - Integration tests [here](https://github.com/danielhvs/company-back/blob/main/test/company_back/core_test.clj#L17) by using Docker and a test fixture that starts and ends the whole application per test
   - Spec usage [here](https://github.com/danielhvs/company-back/blob/main/src/company_back/core.clj#L36) for validation.
-  - Regular clojure dev's workflow by using the user namespace  usage [here](https://github.com/danielhvs/company-back/blob/dev/user.clj#L17) for validation.
+  - Regular clojure dev's workflow by using the user namespace usage [here](https://github.com/danielhvs/company-back/blob/main/dev/user.clj#L26) for REPL driven development.
 
 Show Case
 ===========
