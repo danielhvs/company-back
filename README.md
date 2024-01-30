@@ -8,6 +8,10 @@ Clojure Backend Application
   - Uses [docker](https://www.docker.com/) to dockerize the uberjar so it is easy to deploy anywhere.
   - Usage: `make docker-build-and-run` or `docker compose up`
 
+Notes
+===========
+  - Integration [tests](./test/company_back/core_test.clj) by using Docker and a test fixture that starts and ends the whole application per test
+
 Show Case
 ===========
 https://github.com/danielhvs/company-back/assets/9825663/ca83e2a0-a3ca-41a2-a810-811da6bfa12e
