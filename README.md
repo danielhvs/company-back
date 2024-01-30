@@ -14,7 +14,7 @@ Observe
   - Spec usage [here](https://github.com/danielhvs/company-back/blob/main/src/company_back/core.clj#L36) for validation.
   - Regular clojure dev's workflow by using the user namespace usage [here](https://github.com/danielhvs/company-back/blob/main/dev/user.clj#L26) for REPL driven development.
 
-Show Case
+Show Case (old version)
 ===========
 https://github.com/danielhvs/company-back/assets/9825663/ca83e2a0-a3ca-41a2-a810-811da6bfa12e
 
